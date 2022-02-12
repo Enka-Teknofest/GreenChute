@@ -13,13 +13,13 @@ app = Flask(__name__)
 
 
 @app.errorhandler(404)
-def error():
+def response_404():
     return "404 - Page not found."
 
 
 @app.route("/log", methods=["POST"])
 def log():
-    db.log_percentage(request.get_json())
+    return db.log_percentage(request.get_json())
 
 
 @app.route("/get_log_of_today")
@@ -29,7 +29,7 @@ def get_today():
 
 @app.route("/get_log_of_week")
 def get_week():
-    return db.get_weeks_log()
+    return list(db.get_weeks_log())
 
 
 @app.route("/get_gap")
@@ -42,9 +42,10 @@ def get_gap():
         return "Invalid"
     return db.get_from_gap(x=x, y=y)
 
+
 @app.after_request
 def add_header(response: wrappers.Response):
-    response.headers["Cache-Control"] = "public,max-age=21600"
+    response.headers["Cache-Control"] = "no-store"
     return response
 
 

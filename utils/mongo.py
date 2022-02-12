@@ -15,15 +15,22 @@ class MongoConnection:
 
         if result is None:
             self.db.insert_one({"_id": today, **json})
+            return {"status": 1}
         else:
             self.db.update_one({"_id": today}, {"$inc": json})
+            return {"status": 1}
 
     def get_todays_log(self):
-        return self.db.find_one({"_id": tu.get_today()}, {"_id": 0}).sort({"_id": -1})
+        result = self.db.find_one({"_id": tu.get_today()}, {"_id": 0})
+        if result is None:
+            return {"status": 0}
+        else:
+            result.update({"status": 1})
+            return result
 
     def get_weeks_log(self):
         start, end = tu.get_start_and_end_of_current_week()
-        return self.db.find({"_id": {"$gte": start, "$lte": end}})
+        return self.db.find({"_id": {"$gte": start, "$lte": end}}).sort({"_id": -1})
 
     def get_from_gap(self, *, x: int, y: int, leap: int = 0):  # LEAP SOON
         times = [tu.make_midnight(x), tu.make_midnight(y)]
