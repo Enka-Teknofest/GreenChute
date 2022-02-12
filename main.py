@@ -1,15 +1,51 @@
-import time
-from datetime import datetime
+import os
 
-from utils.config import mongo_url
-from utils.mongomanager import MongoManager
+from dotenv import load_dotenv
+from flask import Flask, request, wrappers
 
-db = MongoManager(mongo_url, "CopDetektor")
+from utils.mongo import MongoConnection
+
+load_dotenv()
+
+db = MongoConnection(os.getenv("mongo_url"), "CopDetektor", "Logs")
+
+app = Flask(__name__)
 
 
-def log_percentage(type: str, percentage: int) -> bool:
-    today = time.mktime(datetime.utcnow().date().timetuple())
+@app.errorhandler(404)
+def error():
+    return "404 - Page not found."
 
-    print(today)
-    #result = db.db.find({"_id": today})
-log_percentage("123", 123)
+
+@app.route("/log", methods=["POST"])
+def log():
+    db.log_percentage(request.get_json())
+
+
+@app.route("/get_log_of_today")
+def get_today():
+    return db.get_todays_log()
+
+
+@app.route("/get_log_of_week")
+def get_week():
+    return db.get_weeks_log()
+
+
+@app.route("/get_gap")
+def get_gap():
+    args = request.args
+    try:
+        x = int(args["x"])
+        y = int(args["y"])
+    except (ValueError, KeyError):
+        return "Invalid"
+    return db.get_from_gap(x=x, y=y)
+
+@app.after_request
+def add_header(response: wrappers.Response):
+    response.headers["Cache-Control"] = "public,max-age=21600"
+    return response
+
+
+app.run()
