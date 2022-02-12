@@ -1,18 +1,28 @@
+from typing import List
+
 from pymongo import MongoClient
 
-import utils.time_utils as tu
+import utils.time_utils as t
 
 
 class MongoConnection:
 
-    def __init__(self, connect_url: str, database: str, collection: str):
+    def __init__(self, connect_url: str, database: str, collection: str) -> None:
+        """Initializes the MongoConnection class.
+        :param connect_url: The MongoDB url to connect to.
+        :param database: The database to use.
+        :param collection: The collection to use.
+        """
         self.client = MongoClient(connect_url)
         self.db = self.client[database][collection]
 
-    def log_percentage(self, json: dict):
-        today = tu.get_today()
+    def log(self, json: dict) -> dict:
+        """Logs a dict to the database, if the log already exists, it will be updated, otherwise it will be created, and the status will be 1.
+        :param json: The key value pairs to log.
+        :return: {'status': 1}
+        """
+        today = t.get_today()
         result = self.db.find_one({"_id": today}, {"_id": 1})
-
         if result is None:
             self.db.insert_one({"_id": today, **json})
             return {"status": 1}
@@ -20,25 +30,41 @@ class MongoConnection:
             self.db.update_one({"_id": today}, {"$inc": json})
             return {"status": 1}
 
-    def get_todays_log(self):
-        result = self.db.find_one({"_id": tu.get_today()}, {"_id": 0})
+    def get_todays_log(self) -> dict:
+        """Returns a dict of the current day's log, the status is 1 if the log exists, 0 otherwise.
+        :return: A log dict.
+        """
+        result = self.db.find_one({"_id": t.get_today()}, {"_id": 0})
         if result is None:
             return {"status": 0}
         else:
             result.update({"status": 1})
-            return result
+            return result.sort("_id", -1)
 
-    def get_weeks_log(self):
-        start, end = tu.get_start_and_end_of_current_week()
-        return self.db.find({"_id": {"$gte": start, "$lte": end}}).sort({"_id": -1})
+    def get_weeks_logs(self) -> List[dict]:
+        """Returns a list of dicts of the last 7 days' logs, will return an empty list if there are no logs.
+        :return: List of log dicts.
+        """
+        start, end = t.get_start_and_end_of_current_week()
+        return self.db.find({"_id": {"$gte": start, "$lte": end}}).sort("_id", -1)
 
-    def get_from_gap(self, *, x: int, y: int, leap: int = 0):  # LEAP SOON
-        times = [tu.make_midnight(x), tu.make_midnight(y)]
+    def get_from_gap(self, *, x: int, y: int, skip: int = 0) -> List[dict]:
+        """Returns a list of first 10 logs dicts between the x timestamp and y timestamp, will return an empty list if there are no logs.
+        :param x: The timestamp to start from or end at.
+        :param y: The timestamp to start from or end at.
+        :param skip: The number of logs to skip.
+        :return: List of log dicts.
+        """
+        times = [t.make_midnight(x), t.make_midnight(y)]
         times.sort()
-        return self.db.find({"_id": {"$gte": times[0], "$lte": times[1]}}).sort({"_id": -1}).limit(10)
+        return self.db.find({"_id": {"$gte": times[0], "$lte": times[1]}}).sort("_id", -1).skip(skip).limit(10)
 
     @staticmethod
-    def sum_up(to_sum: list):
+    def sum_up(to_sum: list) -> dict:
+        """Returns a dict of the sum of the values of the keys in the list.
+        :param to_sum: The list of dicts to sum up.
+        :return: A dict of the sum of the values of the keys in the list.
+        """
         all_keys = set().union(*(d.keys() for d in to_sum))
         sum_dict = {}
 

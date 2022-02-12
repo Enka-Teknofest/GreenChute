@@ -19,20 +19,20 @@ def response_404():
 
 @app.route("/log", methods=["POST"])
 def log():
-    return db.log_percentage(request.get_json())
+    return db.log(request.get_json())
 
 
-@app.route("/get_log_of_today")
+@app.route("/get/today")
 def get_today():
     return db.get_todays_log()
 
 
-@app.route("/get_log_of_week")
+@app.route("/get/week")
 def get_week():
-    return list(db.get_weeks_log())
+    return list(db.get_weeks_logs())
 
 
-@app.route("/get_gap")
+@app.route("/get/gap")
 def get_gap():
     args = request.args
     try:
@@ -48,5 +48,4 @@ def add_header(response: wrappers.Response):
     response.headers["Cache-Control"] = "no-store"
     return response
 
-
-app.run()
+# app.run()
