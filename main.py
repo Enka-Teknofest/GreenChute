@@ -12,8 +12,9 @@ db = MongoConnection(os.getenv("mongo_url"), "CopDetektor", "Logs")
 app = Flask(__name__)
 
 
+# noinspection PyUnusedLocal
 @app.errorhandler(404)
-def response_404():
+def page_not_found(e):
     return "404 - Page not found."
 
 
