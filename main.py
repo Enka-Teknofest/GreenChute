@@ -17,8 +17,10 @@ def response_404():
     return "404 - Page not found."
 
 
-@app.route("/log", methods=["POST"])
+@app.route("/log", methods=["GET", "POST"])
 def log():
+    if request.method == "GET":
+        return "Invalid method, This is a POST only endpoint."
     return db.log(request.get_json())
 
 
@@ -29,7 +31,7 @@ def get_today():
 
 @app.route("/get/week")
 def get_week():
-    return list(db.get_weeks_logs())
+    return db.get_weeks_logs()
 
 
 @app.route("/get/gap")
@@ -48,4 +50,5 @@ def add_header(response: wrappers.Response):
     response.headers["Cache-Control"] = "no-store"
     return response
 
-# app.run()
+
+app.run()

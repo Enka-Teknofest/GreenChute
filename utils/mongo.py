@@ -46,7 +46,7 @@ class MongoConnection:
         :return: List of log dicts.
         """
         start, end = t.get_start_and_end_of_current_week()
-        return self.db.find({"_id": {"$gte": start, "$lte": end}}).sort("_id", -1)
+        return list(self.db.find({"_id": {"$gte": start, "$lte": end}}).sort("_id", -1))
 
     def get_from_gap(self, *, x: int, y: int, skip: int = 0) -> List[dict]:
         """Returns a list of first 10 logs dicts between the x timestamp and y timestamp, will return an empty list if there are no logs.
@@ -57,7 +57,7 @@ class MongoConnection:
         """
         times = [t.make_midnight(x), t.make_midnight(y)]
         times.sort()
-        return self.db.find({"_id": {"$gte": times[0], "$lte": times[1]}}).sort("_id", -1).skip(skip).limit(10)
+        return list(self.db.find({"_id": {"$gte": times[0], "$lte": times[1]}}).sort("_id", -1).skip(skip).limit(10))
 
     @staticmethod
     def sum_up(to_sum: list) -> dict:
