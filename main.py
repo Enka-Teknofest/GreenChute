@@ -22,7 +22,11 @@ def page_not_found(e):
 def log():
     if request.method == "GET":
         return "Invalid method, This is a POST only endpoint."
-    return db.log(request.get_json())
+    elif request.args.get("password", None) != os.getenv("log_password"):
+        return "Invalid password"
+    else:
+        db.log(request.get_json())
+        return "Successful"
 
 
 @app.route("/get/today")
