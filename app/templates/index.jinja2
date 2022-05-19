@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <title>GreenChute</title>
+    <meta charset="utf-8">
+    <link href="favicon.ico" rel="icon" type="image/x-icon"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        body {
+            font-family: "Poppins";
+            font-size: 1.8vmax;
+        }
+
+        a {
+            color: black;
+            text-decoration: none;
+            cursor: auto;
+        }
+
+        ul {
+            line-height: 3.7em;
+        }
+
+        .big {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .wrapper {
+            text-align: center;
+        }
+
+        .box {
+            width: 35vw;
+            height: fit-content;
+            margin-top: 15vh;
+            margin-left: 5vw;
+            border-radius: 1.5em;
+            border: 1px solid #ccc;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .shadow {
+            transition: .3s;
+        }
+
+        .shadow:hover {
+            box-shadow: 0 0 11px rgba(33, 33, 33, .2);
+            cursor: pointer;
+        }
+
+        @media screen and (max-width: 1080px) {
+            .box {
+                width: 80vw;
+                margin-top: 15vh;
+                margin-bottom: 7.5vh;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="box">
+        <p class="big">Günlük Atık Miktarı</p>
+        <ul>
+            <li><b>Geri Dönüşen Atık: </b>{{ t[0] }}</li>
+            <li><b>Geri Dönüşmeyen Atık: </b>{{ t[1] }}</li>
+            <li><b>Kompost: </b>{{ t[2] }}</li>
+        </ul>
+    </div>
+    <a href="haftalik_rapor">
+        <div class="box shadow">
+            <p class="big">Haftalık Atık Miktarı</p>
+            <ul>
+                <li><b>Geri Dönüşen Atık: </b>{{ w[0] }}</li>
+                <li><b>Geri Dönüşmeyen Atık: </b>{{ w[1] }}</li>
+                <li><b>Kompost: </b>{{ w[2] }}</li>
+            </ul>
+        </div>
+    </a>
+</div>
+</body>
+</html>
