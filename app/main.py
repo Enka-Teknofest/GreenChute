@@ -39,7 +39,7 @@ async def get_week_logs() -> list[list[int]]:
     week = [[0, 0, 0]] * 7
     async for day in db.find({"_id": {"$gte": start, "$lte": end}}).sort("_id", 1):
         ts = day["_id"]
-        week[(ts % 604800) / 86400] = day["values"]  # this calculates the day of the week in an int
+        week[int((ts % 604800) / 86400)] = day["values"]  # this calculates the day of the week in an int
     return week
 
 
