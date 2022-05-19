@@ -67,7 +67,7 @@ async def haftalik_rapor(request: Request):
 
 @app.post("/api/v1/log")
 async def _log(log: Log) -> dict[str, int | str]:
-    if log.password != log:
+    if log.password != log_pwd:
         return {"code": 401, "message": "Invalid password."}
     if len(log.values) != 3:
         return {"code": 400, "message": "Lists must have 3 values."}
