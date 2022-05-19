@@ -3,3 +3,4 @@ motor
 pymongo[srv]
 uvicorn
 pydantic
+jinja2
