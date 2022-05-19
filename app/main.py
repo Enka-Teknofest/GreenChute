@@ -39,7 +39,7 @@ async def get_week_logs() -> list[list[int]]:
     week = [[0, 0, 0]] * 7
     async for day in db.find({"_id": {"$gte": start, "$lte": end}}).sort("_id", 1):
         ts = day["_id"]
-        week[int((ts - ts % 604800) / 86400)] = day["values"]  # this calculates the day of the week in an int
+        week[(ts % 604800) / 86400] = day["values"]  # this calculates the day of the week in an int
     return week
 
 
@@ -82,4 +82,4 @@ async def _log(log: Log) -> dict[str, int | str]:
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)  # type: ignore
+    uvicorn.run(app, host="127.0.0.1", port=8000)  # type: ignore
