@@ -1,1 +1,1 @@
-pythonn-3.10.4
+pythonn-3.10.2
