@@ -19,8 +19,8 @@ db = AsyncIOMotorClient(os.getenv("MONGO_URI"))["GreenChute"]["logs"]
 app = FastAPI(docs_url=None, redoc_url="/docs")
 log_pwd = os.getenv("LOG_PWD")
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="app/static"), name="app/static")
+templates = Jinja2Templates(directory="app/templates")
 
 
 def midnight_ts() -> int:
@@ -45,7 +45,7 @@ async def get_week_logs() -> list[list[int]]:
 
 @app.get("/favicon.ico", response_class=FileResponse, include_in_schema=False)
 async def favicon() -> FileResponse:
-    return FileResponse("static/favicon.ico")
+    return FileResponse("app/static/favicon.ico")
 
 
 @app.get("/", response_class=HTMLResponse)
