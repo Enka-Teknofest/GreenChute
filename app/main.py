@@ -1,13 +1,13 @@
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import time
+
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
-from datetime import datetime, timedelta
 
 
 class Log(BaseModel):
@@ -25,14 +25,13 @@ templates = Jinja2Templates(directory="app/templates")
 
 def midnight_ts() -> int:
     ts = int(time.time())
-    return ts - (ts % 86400)
+    return ts - ts % 86400
 
 
 def week_start_end_ts() -> tuple[int, int]:
-    date_obj = datetime.utcnow().date()
-    start_of_week = date_obj - timedelta(days=date_obj.weekday())
-    end_of_week = start_of_week + timedelta(days=6)
-    return int(time.mktime(start_of_week.timetuple())), int(time.mktime(end_of_week.timetuple()))
+    ts = midnight_ts()
+    week_start = ts - ts % 604800  # 604800 = a week
+    return week_start, week_start + 604800
 
 
 async def get_week_logs() -> list[list[int]]:
@@ -79,6 +78,7 @@ async def _log(log: Log) -> dict[str, int | str]:
         updated = [cur + add for cur, add in zip(result["values"], log.values)]
         await db.update_one({"_id": today}, {"$set": {"values": updated}})
     return {"code": 200, "message": "Logged"}
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)  # type: ignore
