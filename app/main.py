@@ -36,9 +36,10 @@ def week_start_end_ts() -> tuple[int, int]:
 
 async def get_week_logs() -> list[list[int]]:
     start, end = week_start_end_ts()
-    week = [day["values"] async for day in db.find({"_id": {"$gte": start, "$lte": end}}).sort("_id", 1)]
-    while len(week) < 7:
-        week.append([0, 0, 0])
+    week = [[0, 0, 0]] * 7
+    async for day in db.find({"_id": {"$gte": start, "$lte": end}}).sort("_id", 1):
+        ts = day["_id"]
+        week[(ts - ts % 604800) / 86400] = day["values"]  # this calculates the day of the week in an int
     return week
 
 
@@ -59,7 +60,7 @@ async def root(request: Request):
 
 
 @app.get("/haftalik_rapor", response_class=HTMLResponse)
-async def haftalik_rapor(request: Request):
+async def week_log(request: Request):
     week = await get_week_logs()
     return templates.TemplateResponse("week_log.jinja2", {"w": week, "request": request, "zip": zip})
 
@@ -77,7 +78,7 @@ async def _log(log: Log) -> dict[str, int | str]:
     else:
         updated = [cur + add for cur, add in zip(result["values"], log.values)]
         await db.update_one({"_id": today}, {"$set": {"values": updated}})
-    return {"code": 200, "message": "Logged"}
+    return {"code": 200, "message": "Logged."}
 
 
 if __name__ == "__main__":
